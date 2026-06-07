@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>梅花易数 - 娱乐起卦工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #E8F4F8;
+            font-family: '微软雅黑', 'Segoe UI', 'Noto Sans CJK SC', Roboto, sans-serif;
+            color: #37474F;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ========= 核心响应式容器 ========= */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .main-window {
+            width: 100%;
+            background: transparent;
+        }
+
+        /* ========= 顶部标题区 ========= */
+        .header {
+            background: #4A90E2;
+            text-align: center;
+            margin-bottom: 15px;
+            width: 100%;
+            padding: 20px 15px;
+        }
+        .header-inner {
+            width: 100%;
+        }
+        .title-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .flower {
+            font-size: clamp(24px, 6vw, 32px);
+            font-family: '华文楷书', 'KaiTi', cursive;
+            font-weight: bold;
+            color: #F8BBD0;
+        }
+        .title-text {
+            font-size: clamp(24px, 6vw, 32px);
+            font-family: '华文楷书', 'KaiTi', cursive;
+            font-weight: bold;
+            color: white;
+        }
+        .subtitle {
+            font-size: clamp(10px, 2.5vw, 11px);
+            color: #B3E5FC;
+            margin-top: 8px;
+            font-family: '微软雅黑', sans-serif;
+        }
+        .deco-line {
+            width: 60%;
+            height: 2px;
+            background: #B3E5FC;
+            margin: 10px auto 0;
+        }
+
+        /* ========= 两列布局 ========= */
+        .two-columns {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .left-panel {
+            flex: 1.2;
+            min-width: 280px;
+        }
+        .right-panel {
+            flex: 2;
+            min-width: 340px;
+        }
+
+        /* ========= 卡片通用样式 ========= */
+        .card {
+            background: white;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            width: 100%;
+        }
+
+        .card-header-green {
+            background: #7CB342;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+        .card-header-blue {
+            background: #4A90E2;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* ========= 选项卡样式 ========= */
+        .notebook {
+            background: white;
+        }
+        .tab-bar {
+            display: flex;
+            background: #F0F8FF;
+            border-bottom: 1px solid #CFD8DC;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: #B3E5FC;
+            border: none;
+            padding: 10px 16px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #37474F;
+            font-family: '微软雅黑', sans-serif;
+            border-radius: 0;
+            flex: 1;
+            text-align: center;
+            white-space: nowrap;
+        }
+        @media (max-width: 480px) {
+            .tab-btn {
+                padding: 10px 8px;
+                font-size: 9px;
+                white-space: normal;
+            }
+        }
+        .tab-btn.active {
+            background: #4A90E2;
+            color: white;
+        }
+        .tab-pane {
+            display: none;
+            padding: 20px;
+            background: white;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* ========= 数字起卦 - 标签与输入框距离缩小 ========= */
+        .num-input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .num-input-group label {
+            width: 70px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #37474F;
+        }
+        .num-input-group input {
+            flex: 1;
+            min-width: 120px;
+            border: 1px solid #CFD8DC;
+            padding: 8px 10px;
+            font-size: 12px;
+            border-radius: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        .num-input-group:nth-child(1) input { background: #B3E5FC; }
+        .num-input-group:nth-child(2) input { background: #C8E6C9; }
+        .num-input-group:nth-child(3) input { background: #F8BBD0; }
+
+        /* 时间起卦 */
+        .divider {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 9px;
+            color: #CFD8DC;
+        }
+        .time-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .time-item {
+            text-align: center;
+        }
+        .time-item label {
+            font-size: 10px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .time-item input {
+            width: 70px;
+            padding: 6px;
+            font-size: 10px;
+            text-align: center;
+            border: 1px solid #CFD8DC;
+            font-family: 'Arial', sans-serif;
+        }
+        .time-item:nth-child(1) input { background: #B3E5FC; }
+        .time-item:nth-child(2) input { background: #C8E6C9; }
+        .time-item:nth-child(3) input { background: #F8BBD0; }
+        .time-item:nth-child(4) input { background: #B3E5FC; }
+
+        /* 汉字起卦 */
+        .chinese-textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            font-size: 12px;
+            font-family: '微软雅黑', sans-serif;
+            border: 1px solid #CFD8DC;
+            background: white;
+            resize: vertical;
+        }
+
+        /* ========= 随机起卦 ========= */
+        .random-symbols {
+            text-align: center;
+            padding: 15px 0 5px;
+        }
+        .bagua-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px 15px;
+            justify-items: center;
+            align-items: center;
+            max-width: 320px;
+            margin: 0 auto;
+            padding: 15px 10px;
+        }
+        .bagua-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .bagua-symbol {
+            font-size: 38px;
+            font-weight: normal;
+            transition: transform 0.2s;
+        }
+        .bagua-name {
+            font-size: 11px;
+            color: #4A90E2;
+            font-weight: 500;
+            background: #E8F4F8;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .bagua-item:hover .bagua-symbol {
+            transform: scale(1.1);
+        }
+        .random-text {
+            font-family: '华文楷书', 'KaiTi', cursive;
+            font-size: 14px;
+            margin: 15px 0 8px;
+            color: #37474F;
+        }
+        .random-sub {
+            font-size: 10px;
+            color: #90A4AE;
+            margin-bottom: 20px;
+        }
+
+        /* 按钮通用样式 */
+        .btn {
+            border: none;
+            padding: 8px 30px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 0;
+        }
+        .btn-blue {
+            background: #4A90E2;
+            display: block;
+            margin: 20px auto 10px;
+        }
+        .btn-green {
+            background: #7CB342;
+        }
+        .btn-pink {
+            background: #EC407A;
+        }
+        .btn-full {
+            width: 100%;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* ========= 右侧结果区 ========= */
+        .result-scroll {
+            max-height: 650px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .labelframe {
+            border: 1px solid #CFD8DC;
+            margin-bottom: 10px;
+            padding: 12px;
+            position: relative;
+            margin-top: 8px;
+        }
+        .labelframe-title {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: white;
+            padding: 0 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #4A90E2;
+        }
+        .gua-line {
+            margin: 8px 0;
+            font-size: 10px;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        .gua-line strong {
+            font-size: 10px;
+        }
+        .insight-box {
+            background: #F5F9FF;
+            padding: 12px;
+            font-size: 10px;
+            line-height: 1.6;
+            margin-top: 5px;
+            word-break: break-word;
+            white-space: pre-line;
+        }
+        .shengke-box {
+            background: #F5F9FF;
+            padding: 12px;
+            font-size: 10px;
+            line-height: 1.8;
+            margin-top: 5px;
+            word-break: break-word;
+        }
+
+        /* 底部按钮栏 */
+        .btn-bar {
+            border-top: 1px solid #CFD8DC;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            background: white;
+            flex-wrap: wrap;
+        }
+        .btn-sm {
+            background: #B3E5FC;
+            border: none;
+            padding: 6px 25px;
+            font-size: 10px;
+            cursor: pointer;
+            color: #37474F;
+        }
+        .btn-sm-green {
+            background: #C8E6C9;
+        }
+        .btn-sm-pink {
+            background: #F8BBD0;
+        }
+
+        /* ========= 底部哲理栏 ========= */
+        .footer-wisdom {
+            background: #4A90E2;
+            margin-top: 15px;
+            padding: 14px 20px;
+            text-align: center;
+            color: white;
+            font-size: 10px;
+            font-style: italic;
+            width: 100%;
+        }
+        .footer-wisdom div {
+            white-space: normal;
+            word-break: break-word;
+            margin: 2px 0;
+        }
+
+        /* ========= 窄屏优化 ========= */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            .tab-pane {
+                padding: 15px;
+            }
+            .result-scroll {
+                max-height: 500px;
+            }
+            .bagua-grid {
+                gap: 15px 10px;
+                max-width: 100%;
+            }
+            .bagua-symbol {
+                font-size: 32px;
+            }
+            .bagua-name {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bagua-grid {
+                gap: 12px 8px;
+            }
+            .bagua-symbol {
+                font-size: 28px;
+            }
+            .btn {
+                padding: 8px 20px;
+            }
+            .time-item input {
+                width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 所有内容都放在 main-container 内，统一受 max-width:1300px 约束 -->
+<div class="main-container">
+    <!-- 顶部标题区 -->
+    <div class="header">
+        <div class="header-inner">
+            <div class="title-row">
+                <span class="flower">🌸</span>
+                <span class="title-text">梅花易数</span>
+                <span class="flower">🌸</span>
+            </div>
+            <div class="subtitle">邵雍心法 · 以简御繁 · 观象玩辞</div>
+            <div class="deco-line"></div>
+        </div>
+    </div>
+
+    <div class="main-window">
+        <div class="two-columns">
+            <!-- 左侧：起卦方式 -->
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-header-green">📿 起卦方式</div>
+                    <div class="notebook">
+                        <div class="tab-bar">
+                            <button class="tab-btn active" data-tab="numTab">🔢 数字起卦</button>
+                            <button class="tab-btn" data-tab="timeTab">⏰ 时间起卦</button>
+                            <button class="tab-btn" data-tab="chineseTab">📝 汉字起卦</button>
+                            <button class="tab-btn" data-tab="randTab">🎲 随机起卦</button>
+                        </div>
+                        
+                        <!-- 数字起卦 -->
+                        <div id="numTab" class="tab-pane active">
+                            <div style="text-align:center; margin:10px 0 20px;">
+                                <span style="font-size:40px;">⚡</span>
+                                <div style="font-size:10px; margin-top:5px;">输入三个数字，以应天地人三才</div>
+                            </div>
+                            <div class="num-input-group">
+                                <label>上卦数字：</label>
+                                <input type="number" id="num1" placeholder="例: 12">
+                            </div>
+                            <div class="num-input-group">
+                                <label>下卦数字：</label>
+                                <input type="number" id="num2" placeholder="例: 34">
+                            </div>
+                            <div class="num-input-group">
+                                <label>动爻数字：</label>
+                                <input type="number" id="num3" placeholder="例: 56">
+                            </div>
+                            <button class="btn btn-blue" id="btnNumber">开始起卦</button>
+                        </div>
+                        
+                        <!-- 时间起卦 -->
+                        <div id="timeTab" class="tab-pane">
+                            <div style="text-align:center; margin:10px 0 15px;">
+                                <span style="font-size:40px;">🌙</span>
+                                <div style="font-size:10px;">以年月日时起卦，顺应天时</div>
+                            </div>
+                            <button class="btn btn-green btn-full" id="btnNowTime">🕐 使用当前时间</button>
+                            <div class="divider">━━━━━━ 或自定义时间 ━━━━━━</div>
+                            <div class="time-row">
+                                <div class="time-item"><label>年</label><input type="number" id="yearInp"></div>
+                                <div class="time-item"><label>月</label><input type="number" id="monthInp"></div>
+                                <div class="time-item"><label>日</label><input type="number" id="dayInp"></div>
+                                <div class="time-item"><label>时</label><input type="number" id="hourInp"></div>
+                            </div>
+                            <button class="btn btn-pink btn-full" id="btnCustomTime">使用此时间起卦</button>
+                        </div>
+                        
+                        <!-- 汉字起卦 -->
+                        <div id="chineseTab" class="tab-pane">
+                            <div style="text-align:center; margin:10px 0 15px;">
+                                <span style="font-size:40px;">✍️</span>
+                                <div style="font-size:10px;">依汉字笔画起卦，字里藏玄机</div>
+                            </div>
+                            <textarea id="chineseText" class="chinese-textarea" placeholder="请输入汉字："></textarea>
+                            <div style="font-size:8px; color:#999; text-align:center; margin-top:8px;">可输入词语、句子或任意汉字</div>
+                            <button class="btn btn-pink" id="btnChinese" style="display:block; margin:20px auto 10px;">开始起卦</button>
+                        </div>
+                        
+                        <!-- 随机起卦 -->
+                        <div id="randTab" class="tab-pane">
+                            <div class="random-symbols">
+                                <div class="bagua-grid" id="baguaGrid"></div>
+                                <div class="random-text">随机起卦，顺其自然</div>
+                                <div class="random-sub">让易经为您随机启示</div>
+                                <button class="btn btn-green" id="btnRandom" style="font-size:16px; padding:12px 40px; margin:10px 0 15px;">🎲 随机起卦 🎲</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：结果显示 -->
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-header-blue">🔮 卦象解读</div>
+                    <div class="result-scroll" id="resultScroll">
+                        <div class="labelframe">
+                            <div class="labelframe-title">📊 本卦</div>
+                            <div class="gua-line"><strong>上卦：</strong> <span id="benShang">--</span></div>
+                            <div class="gua-line"><strong>下卦：</strong> <span id="benXia">--</span></div>
+                            <div class="gua-line"><strong>卦名：</strong> <span id="benName" style="color:#EC407A; font-weight:bold;">--</span></div>
+                        </div>
+                        <div class="labelframe">
+                            <div class="labelframe-title">🔄 互卦</div>
+                            <div class="gua-line"><strong>上卦：</strong> <span id="huShang">--</span></div>
+                            <div class="gua-line"><strong>下卦：</strong> <span id="huXia">--</span></div>
+                            <div class="gua-line"><strong>卦名：</strong> <span id="huName" style="color:#EC407A;">--</span></div>
+                        </div>
+                        <div class="labelframe">
+                            <div class="labelframe-title">⚡ 变卦</div>
+                            <div class="gua-line"><strong>上卦：</strong> <span id="bianShang">--</span></div>
+                            <div class="gua-line"><strong>下卦：</strong> <span id="bianXia">--</span></div>
+                            <div class="gua-line"><strong>卦名：</strong> <span id="bianName" style="color:#EC407A;">--</span></div>
+                        </div>
+                        <div class="labelframe">
+                            <div class="labelframe-title">🎲 动爻与体用</div>
+                            <div class="gua-line"><strong>动爻位置：</strong> <span id="dongYao">--</span></div>
+                            <div class="gua-line"><strong>体用关系：</strong> <span id="yongti">--</span></div>
+                        </div>
+                        <div class="labelframe">
+                            <div class="labelframe-title">💫 卦象启示</div>
+                            <div class="insight-box" id="insightText">等待起卦...</div>
+                        </div>
+                        <div class="labelframe">
+                            <div class="labelframe-title">📖 体用生克简析</div>
+                            <div class="shengke-box">
+                                • 体生用 → 付出之象，宜量力而行<br>
+                                • 用生体 → 得助之象，顺遂如意<br>
+                                • 体用比和 → 和谐之象，诸事顺遂<br>
+                                • 体克用 → 制胜之象，虽有阻碍尚能克服<br>
+                                • 用克体 → 受制之象，需审慎防范
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn-bar">
+                        <button class="btn-sm" id="clearBtn">清空记录</button>
+                        <button class="btn-sm btn-sm-green" id="saveBtn">保存卦象</button>
+                        <button class="btn-sm btn-sm-pink" id="copyBtn">复制内容</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部哲理栏 - 现在也在 main-container 内部，宽度与标题栏一致 -->
+    <div class="footer-wisdom">
+        <div>✨ 万物皆数，吉凶悔吝，存乎一心。</div>
+        <div>真正的智慧在于明理修身，以平和之心看待世事变迁。</div>
+    </div>
+</div>
+
+<script>
+    // ===================== 梅花易数核心库 =====================
+    const BA_GUA = {
+        1: { name:"乾", symbol:"☰", nature:"天", direction:"西北", element:"阳金" },
+        2: { name:"兑", symbol:"☱", nature:"泽", direction:"西", element:"阴金" },
+        3: { name:"离", symbol:"☲", nature:"火", direction:"南", element:"火" },
+        4: { name:"震", symbol:"☳", nature:"雷", direction:"东", element:"阳木" },
+        5: { name:"巽", symbol:"☴", nature:"风", direction:"东南", element:"阴木" },
+        6: { name:"坎", symbol:"☵", nature:"水", direction:"北", element:"水" },
+        7: { name:"艮", symbol:"☶", nature:"山", direction:"东北", element:"阳土" },
+        8: { name:"坤", symbol:"☷", nature:"地", direction:"西南", element:"阴土" }
+    };
+
+    const GUA_NAMES = {
+        "1,1":"乾为天","1,2":"天泽履","1,3":"天火同人","1,4":"天雷无妄","1,5":"天风姤","1,6":"天水讼","1,7":"天山遁","1,8":"天地否",
+        "2,1":"泽天夬","2,2":"兑为泽","2,3":"泽火革","2,4":"泽雷随","2,5":"泽风大过","2,6":"泽水困","2,7":"泽山咸","2,8":"泽地萃",
+        "3,1":"火天大有","3,2":"火泽睽","3,3":"离为火","3,4":"火雷噬嗑","3,5":"火风鼎","3,6":"火水未济","3,7":"火山旅","3,8":"火地晋",
+        "4,1":"雷天大壮","4,2":"雷泽归妹","4,3":"雷火丰","4,4":"震为雷","4,5":"雷风恒","4,6":"雷水解","4,7":"雷山小过","4,8":"雷地豫",
+        "5,1":"风天小畜","5,2":"风泽中孚","5,3":"风火家人","5,4":"风雷益","5,5":"巽为风","5,6":"风水涣","5,7":"风山渐","5,8":"风地观",
+        "6,1":"水天需","6,2":"水泽节","6,3":"水火既济","6,4":"水雷屯","6,5":"水风井","6,6":"坎为水","6,7":"水山蹇","6,8":"水地比",
+        "7,1":"山天大畜","7,2":"山泽损","7,3":"山火贲","7,4":"山雷颐","7,5":"山风蛊","7,6":"山水蒙","7,7":"艮为山","7,8":"山地剥",
+        "8,1":"地天泰","8,2":"地泽临","8,3":"地火明夷","8,4":"地雷复","8,5":"地风升","8,6":"地水师","8,7":"地山谦","8,8":"坤为地"
+    };
+
+    const BAGUA_LIST = [
+        { num: 1, name: "乾", symbol: "☰" },
+        { num: 2, name: "兑", symbol: "☱" },
+        { num: 3, name: "离", symbol: "☲" },
+        { num: 4, name: "震", symbol: "☳" },
+        { num: 5, name: "巽", symbol: "☴" },
+        { num: 6, name: "坎", symbol: "☵" },
+        { num: 7, name: "艮", symbol: "☶" },
+        { num: 8, name: "坤", symbol: "☷" }
+    ];
+
+    function getGuaInfo(num) {
+        let n = ((num - 1) % 8) + 1;
+        return BA_GUA[n];
+    }
+
+    function getGuaName(shang, xia) {
+        let s = ((shang - 1) % 8) + 1;
+        let x = ((xia - 1) % 8) + 1;
+        let key = s + "," + x;
+        return GUA_NAMES[key] || (getGuaInfo(s).name + getGuaInfo(x).name + "卦");
+    }
+
+    function getHuGua(shang, xia) {
+        let yao = [];
+        let xiaBin = ((xia-1)%8).toString(2).padStart(3,'0');
+        let shangBin = ((shang-1)%8).toString(2).padStart(3,'0');
+        for(let ch of xiaBin) yao.push(parseInt(ch));
+        for(let ch of shangBin) yao.push(parseInt(ch));
+        let xiaHu = [yao[1], yao[2], yao[3]];
+        let shangHu = [yao[2], yao[3], yao[4]];
+        let xiaNum = parseInt(xiaHu.join(''),2) + 1;
+        let shangNum = parseInt(shangHu.join(''),2) + 1;
+        return [shangNum, xiaNum];
+    }
+
+    function getBianGua(shang, xia, dongYao) {
+        let yao = [];
+        let xiaBin = ((xia-1)%8).toString(2).padStart(3,'0');
+        let shangBin = ((shang-1)%8).toString(2).padStart(3,'0');
+        for(let ch of xiaBin) yao.push(parseInt(ch));
+        for(let ch of shangBin) yao.push(parseInt(ch));
+        let idx = dongYao - 1;
+        yao[idx] = 1 - yao[idx];
+        let xiaNew = yao.slice(0,3);
+        let shangNew = yao.slice(3,6);
+        let xiaNum = parseInt(xiaNew.join(''),2) + 1;
+        let shangNum = parseInt(shangNew.join(''),2) + 1;
+        return [shangNum, xiaNum];
+    }
+
+    function getYongTi(dongYao) {
+        return (dongYao >= 4 && dongYao <= 6) ? "体卦为下卦，用卦为上卦（上卦动）" : "体卦为上卦，用卦为下卦（下卦动）";
+    }
+
+    function getInsightText(ben, hu, bian) {
+        let benName = getGuaName(ben[0], ben[1]);
+        let huName = getGuaName(hu[0], hu[1]);
+        let bianName = getGuaName(bian[0], bian[1]);
+        return `本卦「${benName}」代表当前状态与初始条件。\n互卦「${huName}」揭示事物发展变化的过程。\n变卦「${bianName}」预示最终结果与未来趋势。`;
+    }
+
+    let currentResult = null;
+
+    function displayResult(benGua, huGua, bianGua, dongYao) {
+        let [shangB, xiaB] = benGua;
+        let [shangH, xiaH] = huGua;
+        let [shangBi, xiaBi] = bianGua;
+        
+        let sBin = getGuaInfo(shangB);
+        let xBin = getGuaInfo(xiaB);
+        let sHin = getGuaInfo(shangH);
+        let xHin = getGuaInfo(xiaH);
+        let sBi = getGuaInfo(shangBi);
+        let xBi = getGuaInfo(xiaBi);
+        
+        let benName = getGuaName(shangB, xiaB);
+        let huName = getGuaName(shangH, xiaH);
+        let bianName = getGuaName(shangBi, xiaBi);
+        
+        document.getElementById('benShang').innerHTML = `${sBin.symbol} ${sBin.name}（${sBin.nature}·${sBin.element}） 方位：${sBin.direction}`;
+        document.getElementById('benXia').innerHTML = `${xBin.symbol} ${xBin.name}（${xBin.nature}·${xBin.element}） 方位：${xBin.direction}`;
+        document.getElementById('benName').innerText = benName;
+        document.getElementById('huShang').innerHTML = `${sHin.symbol} ${sHin.name}（${sHin.nature}·${sHin.element}）`;
+        document.getElementById('huXia').innerHTML = `${xHin.symbol} ${xHin.name}（${xHin.nature}·${xHin.element}）`;
+        document.getElementById('huName').innerText = huName;
+        document.getElementById('bianShang').innerHTML = `${sBi.symbol} ${sBi.name}（${sBi.nature}·${sBi.element}）`;
+        document.getElementById('bianXia').innerHTML = `${xBi.symbol} ${xBi.name}（${xBi.nature}·${xBi.element}）`;
+        document.getElementById('bianName').innerText = bianName;
+        document.getElementById('dongYao').innerText = `第 ${dongYao} 爻`;
+        document.getElementById('yongti').innerText = getYongTi(dongYao);
+        document.getElementById('insightText').innerText = getInsightText(benGua, huGua, bianGua);
+        
+        currentResult = {
+            benName, huName, bianName, dongYao,
+            benShangTxt: document.getElementById('benShang').innerHTML,
+            benXiaTxt: document.getElementById('benXia').innerHTML,
+            huShangTxt: document.getElementById('huShang').innerHTML,
+            huXiaTxt: document.getElementById('huXia').innerHTML,
+            bianShangTxt: document.getElementById('bianShang').innerHTML,
+            bianXiaTxt: document.getElementById('bianXia').innerHTML,
+            insight: document.getElementById('insightText').innerText,
+            yongti: getYongTi(dongYao)
+        };
+    }
+
+    function clearResult() {
+        if(confirm("确定要清空所有卦象记录吗？")){
+            document.getElementById('benShang').innerHTML = '--';
+            document.getElementById('benXia').innerHTML = '--';
+            document.getElementById('benName').innerText = '--';
+            document.getElementById('huShang').innerHTML = '--';
+            document.getElementById('huXia').innerHTML = '--';
+            document.getElementById('huName').innerText = '--';
+            document.getElementById('bianShang').innerHTML = '--';
+            document.getElementById('bianXia').innerHTML = '--';
+            document.getElementById('bianName').innerText = '--';
+            document.getElementById('dongYao').innerText = '--';
+            document.getElementById('yongti').innerText = '--';
+            document.getElementById('insightText').innerText = '等待起卦...';
+            currentResult = null;
+        }
+    }
+
+    function saveResult() {
+        if(!currentResult){ alert("没有可保存的卦象！"); return; }
+        let now = new Date();
+        let timeStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+        let content = `🌸 梅 花 易 数 卦 象 🌸\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n起卦时间：${timeStr}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📊 本卦：${currentResult.benName}\n   上卦：${currentResult.benShangTxt}\n   下卦：${currentResult.benXiaTxt}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🔄 互卦：${currentResult.huName}\n   上卦：${currentResult.huShangTxt}\n   下卦：${currentResult.huXiaTxt}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n⚡ 变卦：${currentResult.bianName}\n   上卦：${currentResult.bianShangTxt}\n   下卦：${currentResult.bianXiaTxt}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎲 动爻：第 ${currentResult.dongYao} 爻\n💫 体用：${currentResult.yongti}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📖 卦象启示：\n${currentResult.insight}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+        let blob = new Blob([content], {type:"text/plain;charset=utf-8"});
+        let link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `meihua_yi_${now.getFullYear()}${now.getMonth()+1}${now.getDate()}_${now.getHours()}${now.getMinutes()}${now.getSeconds()}.txt`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        alert("卦象已保存");
+    }
+
+    function copyResult() {
+        if(!currentResult){ alert("没有可复制的内容！"); return; }
+        let content = `梅花易数卦象\n本卦：${currentResult.benName}\n互卦：${currentResult.huName}\n变卦：${currentResult.bianName}\n动爻：第 ${currentResult.dongYao} 爻\n${currentResult.yongti}\n\n${currentResult.insight}`;
+        navigator.clipboard.writeText(content).then(()=>alert("卦象已复制到剪贴板！")).catch(()=>alert("复制失败"));
+    }
+
+    function qiguaByNumbers() {
+        let n1 = parseInt(document.getElementById('num1').value);
+        let n2 = parseInt(document.getElementById('num2').value);
+        let n3 = parseInt(document.getElementById('num3').value);
+        if(isNaN(n1)||isNaN(n2)||isNaN(n3)) { alert("请输入有效数字"); return; }
+        let shang = ((n1-1)%8)+1;
+        let xia = ((n2-1)%8)+1;
+        let dong = ((n3-1)%6)+1;
+        displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+    }
+    
+    function qiguaByNowTime() {
+        let now = new Date();
+        let y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate(), h = now.getHours();
+        let shang = (y+m+d) % 8; if(shang===0) shang=8;
+        let xia = (y+m+d+h) % 8; if(xia===0) xia=8;
+        let dong = (y+m+d+h) % 6; if(dong===0) dong=6;
+        displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+    }
+    
+    function qiguaByCustomTime() {
+        let y = parseInt(document.getElementById('yearInp').value);
+        let m = parseInt(document.getElementById('monthInp').value);
+        let d = parseInt(document.getElementById('dayInp').value);
+        let h = parseInt(document.getElementById('hourInp').value);
+        if(isNaN(y)||isNaN(m)||isNaN(d)||isNaN(h)) { alert("请填写完整的年月日时"); return; }
+        let shang = (y+m+d) % 8; if(shang===0) shang=8;
+        let xia = (y+m+d+h) % 8; if(xia===0) xia=8;
+        let dong = (y+m+d+h) % 6; if(dong===0) dong=6;
+        displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+    }
+    
+    function qiguaByChinese() {
+        let text = document.getElementById('chineseText').value.trim();
+        if(!text){ alert("请输入汉字"); return; }
+        text = text.replace(/\s/g,'');
+        let len = text.length;
+        let shang, xia, dong;
+        if(len === 1){
+            let stroke = text.charCodeAt(0) % 100;
+            shang = stroke % 8 || 8;
+            xia = (stroke+1)%8 || 8;
+            dong = len % 6 || 6;
+        } else {
+            let mid = Math.floor(len/2);
+            let first = text.slice(0,mid);
+            let second = text.slice(mid);
+            let sum1=0, sum2=0;
+            for(let i=0;i<first.length;i++) sum1 += first.charCodeAt(i);
+            for(let i=0;i<second.length;i++) sum2 += second.charCodeAt(i);
+            shang = sum1 % 8 || 8;
+            xia = sum2 % 8 || 8;
+            dong = len % 6 || 6;
+        }
+        displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+    }
+    
+    function qiguaRandom() {
+        let shang = Math.floor(Math.random()*8)+1;
+        let xia = Math.floor(Math.random()*8)+1;
+        let dong = Math.floor(Math.random()*6)+1;
+        displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+    }
+
+    function renderBaguaGrid() {
+        const container = document.getElementById('baguaGrid');
+        if (!container) return;
+        container.innerHTML = '';
+        BAGUA_LIST.forEach(gua => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'bagua-item';
+            itemDiv.innerHTML = `
+                <div class="bagua-symbol">${gua.symbol}</div>
+                <div class="bagua-name">${gua.name}</div>
+            `;
+            container.appendChild(itemDiv);
+        });
+    }
+
+    function initTimeInputs() {
+        let d = new Date();
+        document.getElementById('yearInp').value = d.getFullYear();
+        document.getElementById('monthInp').value = d.getMonth()+1;
+        document.getElementById('dayInp').value = d.getDate();
+        document.getElementById('hourInp').value = d.getHours();
+    }
+
+    function initTabs() {
+        const btns = document.querySelectorAll('.tab-btn');
+        const panes = document.querySelectorAll('.tab-pane');
+        btns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-tab');
+                btns.forEach(b => b.classList.remove('active'));
+                panes.forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initTimeInputs();
+        initTabs();
+        renderBaguaGrid();
+        
+        document.getElementById('btnNumber').addEventListener('click', qiguaByNumbers);
+        document.getElementById('btnNowTime').addEventListener('click', qiguaByNowTime);
+        document.getElementById('btnCustomTime').addEventListener('click', qiguaByCustomTime);
+        document.getElementById('btnChinese').addEventListener('click', qiguaByChinese);
+        document.getElementById('btnRandom').addEventListener('click', qiguaRandom);
+        document.getElementById('clearBtn').addEventListener('click', clearResult);
+        document.getElementById('saveBtn').addEventListener('click', saveResult);
+        document.getElementById('copyBtn').addEventListener('click', copyResult);
+    });
+</script>
+</body>
+</html>
