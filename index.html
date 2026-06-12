@@ -343,6 +343,38 @@
             color: #90A4AE;
             margin-bottom: 20px;
         }
+        /* 骰子基础样式 - 不点击时不转 */
+        .dice {
+            display: inline-block;
+        }
+        
+        /* 点击时添加 rolling 类，触发动画 */
+        #btnRandom.rolling .dice {
+            animation: diceSpin 0.3s ease-in-out;
+        }
+        
+        /* 左侧骰子立即旋转 */
+        #btnRandom.rolling .dice:first-child {
+            animation-delay: 0s;
+        }
+        
+        /* 右侧骰子延迟 0.05s 旋转，产生一先一后的效果 */
+        #btnRandom.rolling .dice:last-child {
+            animation-delay: 0.05s;
+        }
+        
+        /* 旋转动画定义 */
+        @keyframes diceSpin {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.2);
+            }
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
 		
         /* ========= 按钮通用样式 ========= */
         .btn {
@@ -569,8 +601,10 @@
                                 <div class="bagua-grid" id="baguaGrid"></div>
                                 <div class="random-text">随机起卦，顺其自然</div>
                                 <div class="random-sub">让易经为您随机启示</div>
-                                <button class="btn btn-green" id="btnRandom" style="font-size:16px; padding:12px 40px; margin:10px 0 15px;">🎲 随机起卦 🎲</button>
-                            </div>
+                                <button class="btn btn-green" id="btnRandom" style="font-size:16px; padding:12px 40px; margin:10px 0 15px;">
+                                    <span class="dice">🎲</span> 随机起卦 <span class="dice">🎲</span>
+                                </button>								
+							</div>
                         </div>
                     </div>
                 </div>
@@ -2999,7 +3033,7 @@
         
         document.getElementById('aiDeepInsight').innerHTML = '✨ 卦象已备，请在左侧/上方“所思所问”中确认您的问题，然后点击“请AI结合卦象解读”获取专属智慧箴言。';
     }
-    
+    // 清空记录函数
     function clearResult() {
         if(confirm("确定要清空所有卦象记录吗？")){
             document.getElementById('benShang').innerHTML = '--'; document.getElementById('benXia').innerHTML = '--'; document.getElementById('benName').innerText = '--';
@@ -3012,19 +3046,146 @@
             document.getElementById('aiDeepInsight').innerHTML = '✨ 请先在左侧/上方「所思所问」中输入您关心的问题，完成起卦后点击“请AI结合卦象解读”，智慧箴言将在此呈现。';
         }
     }
-    function saveResult() { if(!currentResult){ alert("没有可保存的卦象！"); return; } let now = new Date(); let timeStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`; let content = `🌸 梅 花 易 数 卦 象 🌸\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n起卦时间：${timeStr}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📊 本卦：${currentResult.benName}\n   上卦：${currentResult.benShangTxt}\n   下卦：${currentResult.benXiaTxt}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🔄 互卦：${currentResult.huName}\n   上卦：${currentResult.huShangTxt}\n   下卦：${currentResult.huXiaTxt}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n⚡ 变卦：${currentResult.bianName}\n   上卦：${currentResult.bianShangTxt}\n   下卦：${currentResult.bianXiaTxt}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🎲 动爻：第 ${currentResult.dongYao} 爻\n💫 体用：${currentResult.yongti}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📖 卦象启示：\n${currentResult.insight}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`; let link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([content], {type:"text/plain;charset=utf-8"})); link.download = `meihua_yi_${now.getFullYear()}${now.getMonth()+1}${now.getDate()}_${now.getHours()}${now.getMinutes()}${now.getSeconds()}.txt`; link.click(); alert("卦象已保存"); }
-    function copyResult() { if(!currentResult){ alert("没有可复制的内容！"); return; } let content = `梅花易数卦象\n本卦：${currentResult.benName}\n互卦：${currentResult.huName}\n变卦：${currentResult.bianName}\n动爻：第 ${currentResult.dongYao} 爻\n${currentResult.yongti}\n\n${currentResult.insight}`; navigator.clipboard.writeText(content).then(()=>alert("卦象已复制到剪贴板！")).catch(()=>alert("复制失败")); }
+	
+	// 保存卦象函数
+    function saveResult() {
+	    if(!currentResult){ alert("没有可保存的卦象！"); return; } 
+		let now = new Date(); 
+		let timeStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`; 
+		let content = `🌸 梅 花 易 数 卦 象 🌸
+		              \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+					  \n起卦时间：${timeStr}
+					  \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+					  \n📊 本卦：${currentResult.benName}
+					  \n   上卦：${currentResult.benShangTxt}
+					  \n   下卦：${currentResult.benXiaTxt}
+					  \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+					  \n🔄 互卦：${currentResult.huName}
+					  \n   上卦：${currentResult.huShangTxt}
+					  \n   下卦：${currentResult.huXiaTxt}
+					  \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+					  \n⚡ 变卦：${currentResult.bianName}
+					  \n   上卦：${currentResult.bianShangTxt}
+					  \n   下卦：${currentResult.bianXiaTxt}
+					  \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+					  \n🎲 动爻：第 ${currentResult.dongYao} 爻
+					  \n💫 体用：${currentResult.yongti}
+					  \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+					  \n📖 卦象启示：\n${currentResult.insight}
+					  \n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`; 
+		let link = document.createElement('a'); 
+		link.href = URL.createObjectURL(new Blob([content], {type:"text/plain;charset=utf-8"})); 
+		link.download = `meihua_yi_${now.getFullYear()}${now.getMonth()+1}${now.getDate()}_${now.getHours()}${now.getMinutes()}${now.getSeconds()}.txt`; 
+		link.click(); alert("卦象已保存"); 
+	}
+	
+	// 复制内容函数
+    function copyResult() {
+	    if(!currentResult){ alert("没有可复制的内容！"); return; } 
+		let content = `梅花易数卦象\n本卦：${currentResult.benName}
+		\n互卦：${currentResult.huName}
+		\n变卦：${currentResult.bianName}
+		\n动爻：第 ${currentResult.dongYao} 爻
+		\n${currentResult.yongti}\n\n${currentResult.insight}`; 
+		navigator.clipboard.writeText(content).then(()=>alert("卦象已复制到剪贴板！")).catch(()=>alert("复制失败")); 
+	}
 
     // 起卦函数
-    function qiguaByNumbers() { let n1 = parseInt(document.getElementById('num1').value), n2 = parseInt(document.getElementById('num2').value), n3 = parseInt(document.getElementById('num3').value); if(isNaN(n1)||isNaN(n2)||isNaN(n3)) { alert("请输入有效数字"); return; } let shang = ((n1-1)%8)+1, xia = ((n2-1)%8)+1, dong = ((n3-1)%6)+1; displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong); }
-    function qiguaByNowTime() { let now = new Date(); let y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate(), h = now.getHours(); let shang = (y+m+d) % 8; if(shang===0) shang=8; let xia = (y+m+d+h) % 8; if(xia===0) xia=8; let dong = (y+m+d+h) % 6; if(dong===0) dong=6; displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong); }
-    function qiguaByCustomTime() { let y = parseInt(document.getElementById('yearInp').value), m = parseInt(document.getElementById('monthInp').value), d = parseInt(document.getElementById('dayInp').value), h = parseInt(document.getElementById('hourInp').value); if(isNaN(y)||isNaN(m)||isNaN(d)||isNaN(h)) { alert("请填写完整的年月日时"); return; } let shang = (y+m+d) % 8; if(shang===0) shang=8; let xia = (y+m+d+h) % 8; if(xia===0) xia=8; let dong = (y+m+d+h) % 6; if(dong===0) dong=6; displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong); }
-    function qiguaByChinese() { let text = document.getElementById('chineseText').value.trim(); if(!text){ alert("请输入汉字"); return; } text = text.replace(/\s/g,''); let len = text.length; let shang, xia, dong; if(len === 1){ let stroke = text.charCodeAt(0) % 100; shang = stroke % 8 || 8; xia = (stroke+1)%8 || 8; dong = len % 6 || 6; } else { let mid = Math.floor(len/2); let first = text.slice(0,mid); let second = text.slice(mid); let sum1=0, sum2=0; for(let i=0;i<first.length;i++) sum1 += first.charCodeAt(i); for(let i=0;i<second.length;i++) sum2 += second.charCodeAt(i); shang = sum1 % 8 || 8; xia = sum2 % 8 || 8; dong = len % 6 || 6; } displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong); }
-    function qiguaRandom() { let shang = Math.floor(Math.random()*8)+1, xia = Math.floor(Math.random()*8)+1, dong = Math.floor(Math.random()*6)+1; displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong); }
-
-    function renderBaguaGrid() { const container = document.getElementById('baguaGrid'); if (!container) return; container.innerHTML = ''; BAGUA_LIST.forEach(gua => { const itemDiv = document.createElement('div'); itemDiv.className = 'bagua-item'; itemDiv.innerHTML = `<div class="bagua-symbol">${gua.symbol}</div><div class="bagua-name">${gua.name}</div>`; container.appendChild(itemDiv); }); }
-    function initTimeInputs() { let d = new Date(); document.getElementById('yearInp').value = d.getFullYear(); document.getElementById('monthInp').value = d.getMonth()+1; document.getElementById('dayInp').value = d.getDate(); document.getElementById('hourInp').value = d.getHours(); }
-    function initTabs() {
+	// 数字起卦函数
+    function qiguaByNumbers() {
+	    let n1 = parseInt(document.getElementById('num1').value),
+		    n2 = parseInt(document.getElementById('num2').value),
+			n3 = parseInt(document.getElementById('num3').value);
+		if(isNaN(n1)||isNaN(n2)||isNaN(n3)) { alert("请输入有效数字"); return; }
+		let shang = ((n1-1)%8)+1, xia = ((n2-1)%8)+1, dong = ((n3-1)%6)+1;
+		displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+	}
+	
+	// 当前时间起卦函数
+    function qiguaByNowTime() {
+	    let now = new Date(); let y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate(), h = now.getHours();
+		let shang = (y+m+d) % 8; if(shang===0) shang=8; let xia = (y+m+d+h) % 8; if(xia===0) xia=8;
+		let dong = (y+m+d+h) % 6; if(dong===0) dong=6;
+		displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+	}
+	
+	// 用户指定时间起卦函数
+    function qiguaByCustomTime() {
+	    let y = parseInt(document.getElementById('yearInp').value),
+		    m = parseInt(document.getElementById('monthInp').value),
+			d = parseInt(document.getElementById('dayInp').value),
+			h = parseInt(document.getElementById('hourInp').value);
+		if(isNaN(y)||isNaN(m)||isNaN(d)||isNaN(h)) { alert("请填写完整的年月日时"); return; }
+		let shang = (y+m+d) % 8; if(shang===0) shang=8; let xia = (y+m+d+h) % 8; if(xia===0) xia=8; let dong = (y+m+d+h) % 6; if(dong===0) dong=6;
+		displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+	}
+	
+	// 汉字起卦函数
+    function qiguaByChinese() {
+	    let text = document.getElementById('chineseText').value.trim();
+		if(!text){ alert("请输入汉字"); return; } text = text.replace(/\s/g,'');
+		let len = text.length; let shang, xia, dong;
+		if(len === 1){ let stroke = text.charCodeAt(0) % 100; shang = stroke % 8 || 8; xia = (stroke+1)%8 || 8; dong = len % 6 || 6; }
+		else { let mid = Math.floor(len/2); let first = text.slice(0,mid); let second = text.slice(mid); let sum1=0, sum2=0;
+		    for(let i=0;i<first.length;i++) sum1 += first.charCodeAt(i);
+		    for(let i=0;i<second.length;i++) sum2 += second.charCodeAt(i); shang = sum1 % 8 || 8; xia = sum2 % 8 || 8; dong = len % 6 || 6;
+		}
+		displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+	}
+	
+	//随机起卦函数
+    function qiguaRandom() { 
+        let shang = Math.floor(Math.random()*8)+1, xia = Math.floor(Math.random()*8)+1, dong = Math.floor(Math.random()*6)+1; 
+        displayResult([shang,xia], getHuGua(shang,xia), getBianGua(shang,xia,dong), dong);
+        
+        // 随机起卦后，将八卦网格替换为本卦的上卦和下卦
+        const shangGua = getGuaInfo(shang);  // 上卦
+        const xiaGua = getGuaInfo(xia);      // 下卦
+        const baguaGrid = document.getElementById('baguaGrid');
+        if (baguaGrid) {
+            // 清空并显示两个卦（上卦在上，下卦在下）
+            baguaGrid.innerHTML = `
+                <div class="bagua-item" style="grid-column: span 4; justify-self: center;">
+                    <div class="bagua-symbol">${shangGua.symbol}</div>
+                    <div class="bagua-name">${shangGua.name}（上卦）</div>
+                </div>
+                <div class="bagua-item" style="grid-column: span 4; justify-self: center;">
+                    <div class="bagua-symbol">${xiaGua.symbol}</div>
+                    <div class="bagua-name">${xiaGua.name}（下卦）</div>
+                </div>
+            `;
+            // 调整网格样式为单列垂直排列
+            baguaGrid.style.display = 'flex';
+            baguaGrid.style.flexDirection = 'column';
+            baguaGrid.style.alignItems = 'center';
+            baguaGrid.style.gap = '20px';
+        }
+    }
+	
+	//在“随机起卦”标签页中，渲染八卦网格（八个卦符图标及名称）
+    function renderBaguaGrid() {
+	    const container = document.getElementById('baguaGrid');
+		if (!container)
+		return;
+		container.innerHTML = '';
+		BAGUA_LIST.forEach(gua => { const itemDiv = document.createElement('div');
+		    itemDiv.className = 'bagua-item';
+		    itemDiv.innerHTML = `<div class="bagua-symbol">${gua.symbol}</div><div class="bagua-name">${gua.name}</div>`;
+		    container.appendChild(itemDiv);
+		}); 
+	}
+	
+	//初始化“时间起卦”标签页中的年月日时输入框，自动填充为当前系统时间
+    function initTimeInputs() {
+	    let d = new Date();
+		document.getElementById('yearInp').value = d.getFullYear();
+		document.getElementById('monthInp').value = d.getMonth()+1;
+		document.getElementById('dayInp').value = d.getDate();
+		document.getElementById('hourInp').value = d.getHours();
+	}
+    
+	//事件监听的回调函数
+	function initTabs() {
         const btns = document.querySelectorAll('.tab-btn');
         const panes = document.querySelectorAll('.tab-pane');
         btns.forEach(btn => {
@@ -3039,9 +3200,21 @@
                 if (typeof updateNumberEnergyBox === 'function') {
                     updateNumberEnergyBox();
                 }
+				// 新增：如果切换到随机起卦选项卡，恢复原始八卦网格
+                if (targetId === 'randTab') {
+                    renderBaguaGrid();  // 重新渲染八个卦
+                    const baguaGrid = document.getElementById('baguaGrid');
+                    if (baguaGrid) {
+                        baguaGrid.style.display = 'grid';
+                        baguaGrid.style.flexDirection = '';
+                        baguaGrid.style.alignItems = '';
+                        baguaGrid.style.gap = '';
+                    }
+                }
             });
         });
     }
+	
     // 事件绑定    
     document.addEventListener('DOMContentLoaded', () => {
         initTimeInputs(); initTabs(); renderBaguaGrid();
@@ -3049,7 +3222,25 @@
         document.getElementById('btnNowTime').addEventListener('click', qiguaByNowTime);
         document.getElementById('btnCustomTime').addEventListener('click', qiguaByCustomTime);
         document.getElementById('btnChinese').addEventListener('click', qiguaByChinese);
-        document.getElementById('btnRandom').addEventListener('click', qiguaRandom);
+        //document.getElementById('btnRandom').addEventListener('click', qiguaRandom);
+        const randomBtn = document.getElementById('btnRandom');
+        randomBtn.addEventListener('click', function() {
+		    // 手机震动（仅当设备支持且是手机时生效，桌面浏览器忽略）
+            if (navigator.vibrate) {
+                navigator.vibrate(100);   // 震动100毫秒，与骰子旋转同步
+            }
+			
+            // 添加动画类，骰子开始旋转
+            randomBtn.classList.add('rolling');
+            
+            // 动画结束后移除类，以便下次点击再次触发
+            setTimeout(() => {
+                randomBtn.classList.remove('rolling');
+            }, 400); // 400ms 略大于动画总时长 (0.3s + 0.05s)
+            
+            // 执行原有的随机起卦函数
+            qiguaRandom();
+        });		
         document.getElementById('clearBtn').addEventListener('click', clearResult);
         document.getElementById('saveBtn').addEventListener('click', saveResult);
         document.getElementById('copyBtn').addEventListener('click', copyResult);
