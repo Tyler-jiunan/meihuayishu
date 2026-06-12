@@ -3224,10 +3224,10 @@
         //document.getElementById('btnRandom').addEventListener('click', qiguaRandom);
         const randomBtn = document.getElementById('btnRandom');
         randomBtn.addEventListener('click', function() {
-		    // 手机震动（仅当设备支持且是手机时生效，桌面浏览器忽略）
+		    /*// 手机震动（仅当设备支持且是手机时生效，桌面浏览器忽略）
             if (navigator.vibrate) {
                 navigator.vibrate(100);   // 震动100毫秒，与骰子旋转同步
-            }
+            }*/
 			
             // 添加动画类，骰子开始旋转
             randomBtn.classList.add('rolling');
