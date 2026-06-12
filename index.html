@@ -716,6 +716,7 @@
     // ================================== 第 1 部分：核心数据定义 ==================================
     // ============================================================================================
     // 梅花易数核心库
+	//八卦意义
     const BA_GUA = {
         1: { name:"乾", symbol:"☰", nature:"天", direction:"西北", element:"阳金" },
         2: { name:"兑", symbol:"☱", nature:"泽", direction:"西", element:"阴金" },
@@ -726,6 +727,7 @@
         7: { name:"艮", symbol:"☶", nature:"山", direction:"东北", element:"阳土" },
         8: { name:"坤", symbol:"☷", nature:"地", direction:"西南", element:"阴土" }
     };
+	//64卦
     const GUA_NAMES = {
         "1,1":"乾为天","1,2":"天泽履","1,3":"天火同人","1,4":"天雷无妄","1,5":"天风姤","1,6":"天水讼","1,7":"天山遁","1,8":"天地否",
         "2,1":"泽天夬","2,2":"兑为泽","2,3":"泽火革","2,4":"泽雷随","2,5":"泽风大过","2,6":"泽水困","2,7":"泽山咸","2,8":"泽地萃",
@@ -736,50 +738,12 @@
         "7,1":"山天大畜","7,2":"山泽损","7,3":"山火贲","7,4":"山雷颐","7,5":"山风蛊","7,6":"山水蒙","7,7":"艮为山","7,8":"山地剥",
         "8,1":"地天泰","8,2":"地泽临","8,3":"地火明夷","8,4":"地雷复","8,5":"地风升","8,6":"地水师","8,7":"地山谦","8,8":"坤为地"
     };
+	//八卦图标
     const BAGUA_LIST = [
         { num: 1, name: "乾", symbol: "☰" }, { num: 2, name: "兑", symbol: "☱" }, { num: 3, name: "离", symbol: "☲" },
         { num: 4, name: "震", symbol: "☳" }, { num: 5, name: "巽", symbol: "☴" }, { num: 6, name: "坎", symbol: "☵" },
         { num: 7, name: "艮", symbol: "☶" }, { num: 8, name: "坤", symbol: "☷" }
     ];
-    // ==========================================================================================
-	
-    // ==========================================================================================	
-	// ================================== 第 2 部分：核心工具函数 ==================================
-    // ============================================================================================
-    function getGuaInfo(num) { let n = ((num - 1) % 8) + 1; return BA_GUA[n]; }
-    function getGuaName(shang, xia) { let s = ((shang - 1) % 8) + 1; let x = ((xia - 1) % 8) + 1; return GUA_NAMES[s+","+x] || (getGuaInfo(s).name + getGuaInfo(x).name + "卦"); }
-    function getHuGua(shang, xia) {
-        let yao = []; let xiaBin = ((xia-1)%8).toString(2).padStart(3,'0'); let shangBin = ((shang-1)%8).toString(2).padStart(3,'0');
-        for(let ch of xiaBin) yao.push(parseInt(ch)); for(let ch of shangBin) yao.push(parseInt(ch));
-        let xiaHu = [yao[1], yao[2], yao[3]]; let shangHu = [yao[2], yao[3], yao[4]];
-        return [parseInt(shangHu.join(''),2)+1, parseInt(xiaHu.join(''),2)+1];
-    }
-    function getBianGua(shang, xia, dongYao) {
-        let yao = []; let xiaBin = ((xia-1)%8).toString(2).padStart(3,'0'); let shangBin = ((shang-1)%8).toString(2).padStart(3,'0');
-        for(let ch of xiaBin) yao.push(parseInt(ch)); for(let ch of shangBin) yao.push(parseInt(ch));
-        let idx = dongYao - 1; yao[idx] = 1 - yao[idx];
-        let xiaNew = yao.slice(0,3); let shangNew = yao.slice(3,6);
-        return [parseInt(shangNew.join(''),2)+1, parseInt(xiaNew.join(''),2)+1];
-    }
-    function getYongTi(dongYao) { 
-        if (dongYao >= 1 && dongYao <= 3) {
-            return "动爻在下卦（1-3爻）→ 体卦为上卦，用卦为下卦";
-        } else {
-            return "动爻在上卦（4-6爻）→ 体卦为下卦，用卦为上卦";
-        }
-    }
-    function getInsightText(ben, hu, bian) {
-        let benName = getGuaName(ben[0], ben[1]); let huName = getGuaName(hu[0], hu[1]); let bianName = getGuaName(bian[0], bian[1]);
-        return `本卦「${benName}」代表当前状态与初始条件。\n互卦「${huName}」揭示事物发展变化的过程。\n变卦「${bianName}」预示最终结果与未来趋势。`;
-    }
-    let currentResult = null;
-    let currentBenGua = null, currentHuGua = null, currentBianGua = null, currentDongYao = null;
-    // ==========================================================================================
-	
-    // ============================================================================================	
-	// ================================== 第 3 部分：《周易》原文模块 ==================================
-    // =============================================================================================	
-    // ========== 《周易》数据库 ==========
     // 完整的《周易》64卦卦辞 + 384爻爻辞数据库
     // 基于《周易》通行本整理
     const ZHOUYI_QUANJI = {
@@ -1488,9 +1452,44 @@
             }
         }
     };
-    // =========================================================
+    // ==========================================================================================
 	
-    // =========================================================
+    // ==========================================================================================	
+	// ================================== 第 2 部分：核心工具函数 ==================================
+    // ============================================================================================
+    function getGuaInfo(num) { let n = ((num - 1) % 8) + 1; return BA_GUA[n]; }
+    function getGuaName(shang, xia) { let s = ((shang - 1) % 8) + 1; let x = ((xia - 1) % 8) + 1; return GUA_NAMES[s+","+x] || (getGuaInfo(s).name + getGuaInfo(x).name + "卦"); }
+    function getHuGua(shang, xia) {
+        let yao = []; let xiaBin = ((xia-1)%8).toString(2).padStart(3,'0'); let shangBin = ((shang-1)%8).toString(2).padStart(3,'0');
+        for(let ch of xiaBin) yao.push(parseInt(ch)); for(let ch of shangBin) yao.push(parseInt(ch));
+        let xiaHu = [yao[1], yao[2], yao[3]]; let shangHu = [yao[2], yao[3], yao[4]];
+        return [parseInt(shangHu.join(''),2)+1, parseInt(xiaHu.join(''),2)+1];
+    }
+    function getBianGua(shang, xia, dongYao) {
+        let yao = []; let xiaBin = ((xia-1)%8).toString(2).padStart(3,'0'); let shangBin = ((shang-1)%8).toString(2).padStart(3,'0');
+        for(let ch of xiaBin) yao.push(parseInt(ch)); for(let ch of shangBin) yao.push(parseInt(ch));
+        let idx = dongYao - 1; yao[idx] = 1 - yao[idx];
+        let xiaNew = yao.slice(0,3); let shangNew = yao.slice(3,6);
+        return [parseInt(shangNew.join(''),2)+1, parseInt(xiaNew.join(''),2)+1];
+    }
+    function getYongTi(dongYao) { 
+        if (dongYao >= 1 && dongYao <= 3) {
+            return "动爻在下卦（1-3爻）→ 体卦为上卦，用卦为下卦";
+        } else {
+            return "动爻在上卦（4-6爻）→ 体卦为下卦，用卦为上卦";
+        }
+    }
+    function getInsightText(ben, hu, bian) {
+        let benName = getGuaName(ben[0], ben[1]); let huName = getGuaName(hu[0], hu[1]); let bianName = getGuaName(bian[0], bian[1]);
+        return `本卦「${benName}」代表当前状态与初始条件。\n互卦「${huName}」揭示事物发展变化的过程。\n变卦「${bianName}」预示最终结果与未来趋势。`;
+    }
+    let currentResult = null;
+    let currentBenGua = null, currentHuGua = null, currentBianGua = null, currentDongYao = null;
+    // ==========================================================================================
+	
+    // ============================================================================================	
+	// ================================== 第 3 部分：获取《周易》原文 ==================================
+    // =============================================================================================	
     // 获取完整的《周易》原文（本卦卦辞+动爻爻辞+互卦卦辞+变卦卦辞+变爻爻辞）
     function getFullZhouyiText(benName, huName, bianName, dongYao) {
         if (!ZHOUYI_QUANJI || Object.keys(ZHOUYI_QUANJI).length === 0) {
